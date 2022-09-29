@@ -24,20 +24,25 @@ from pathlib import Path
 
 #Baseado no leitor Newave - Fabiano
 def leitura_vazao(end) -> pd.DataFrame:
-    """Leitura do arquivo vazões.dat"""
-    tab = pd.read_fwf(end)#(end, header = False )
-    cab = ['POSTO', 'ANOS', 'JAN','FEV', 'MAR', 'ABR', 'MAI','JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ']
-    tab.columns = cab#['POSTO', 'ANOS', 'JAN','FEV', 'MAR', 'ABR', 'MAI','JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ']
-    tab.set_index('POSTO', drop=True, inplace=True)
+    """Leitura do arquivo vazões.dat."""
+    tab = pd.read_csv(end, sep='\s+', header = None )
+    cab = ['POSTO', 'ANOS', 'JAN','FEV', 'MAR', 'ABR', 
+           'MAI','JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ']
+    tab.columns = cab
+    tab.set_index(['POSTO', 'ANOS'])
+    tab.set_index('ANOS')
     return tab
     
 end = Path(r'C:\Users\E805511\Downloads\vazoes 2022')
-obs = leitura_vazao(end)
+df_vazoes = leitura_vazao(end)
 
-chi2, p, dof, ex = chi2_contingency(obs, correction=True, lambda_= None)
+teste_usinas = df_vazoes.groupby("POSTO").get_group(113)
 
-vetor = obs.to_numpy()
-vetor2 = obs['ANOS'].values
+
+chi2, p, dof, ex = chi2_contingency(df_vazoes, correction=True, lambda_= None)
+
+vetor = df_vazoes.to_numpy()
+vetor2 = df_vazoes['ANOS'].values
 
 #%%
 
@@ -49,7 +54,7 @@ with open(end) as arquivo:
 # arq.insert(0,object:_T)
 df_vazoes = pd.DataFrame(arq)
 #%%
-correlacao2 = df_vazoes.corrwith(other=obs)
+correlacao2 = df_vazoes.corrwith(other=df_vazoes)
 #---------------------------------------------------------------
 # DADOS:
 #   chi2: float (The test statistic)
@@ -58,9 +63,9 @@ correlacao2 = df_vazoes.corrwith(other=obs)
 #   expected : ndarray, same shape as observed (The expected frequencies, based
                                             # on the marginal sums of the table.)
 #--------------------------------------------------------------
-dof = obs.size - sum(obs.shape) + obs.ndim - 1
+dof = df_vazoes.size - sum(df_vazoes.shape) + df_vazoes.ndim - 1
 
-chi2, p, dof, ex = chi2_contingency(obs, correction=False, lambda_= None)
+chi2, p, dof, ex = chi2_contingency(df_vazoes, correction=False, lambda_= None)
 
 #The number of degrees of freedom
 

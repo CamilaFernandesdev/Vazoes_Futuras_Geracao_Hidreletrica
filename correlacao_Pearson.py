@@ -27,8 +27,7 @@ def leitura_vazao(end) -> pd.DataFrame:
     cab = ['POSTO', 'ANOS', 'JAN','FEV', 'MAR', 'ABR', 
            'MAI','JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ']
     tab.columns = cab
-    tab.set_index(['POSTO', 'ANOS'])
-    tab.set_index('ANOS')
+    tab.set_index(['POSTO', 'ANOS'], drop=True, inplace=True)
     return tab
     
 end = Path(r'C:\Users\E805511\Downloads\vazoes 2022')
@@ -39,7 +38,8 @@ teste_usinas = df_end.groupby("POSTO").get_group(113)
 
 #%% Manipulação dos dados
 
-pivot2 = obs.pivot_table(index = 'ANOS', columns='POSTO')
+pivot2 = df_end.pivot_table(index = ['ANOS', 'POSTO'],
+                            )
 
 correlacao = df_end.corr(method='pearson')
 
