@@ -42,14 +42,14 @@ vetor2 = obs['ANOS'].values
 #%%
 
     
-#end = Path(r'C:\Users\E805511\Downloads\vazoes 2022')
-# with open(end) as arquivo:
-#     arq = arquivo.readlines()
+end = Path(r'C:\Users\E805511\Downloads\vazoes 2022')
+with open(end) as arquivo:
+    arq = arquivo.readlines()
 
 # arq.insert(0,object:_T)
-
+df_vazoes = pd.DataFrame(arq)
 #%%
-
+correlacao2 = df_vazoes.corrwith(other=obs)
 #---------------------------------------------------------------
 # DADOS:
 #   chi2: float (The test statistic)
