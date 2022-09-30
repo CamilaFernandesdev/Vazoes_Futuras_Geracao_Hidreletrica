@@ -1,6 +1,7 @@
+
 # -*- coding: utf-8 -*-
 """
-Created on Thu Sep 29 14:56:21 2022
+Created on Thu Sep 29 14:56:21 2022.
 
 @author: E805511
 """
@@ -25,13 +26,14 @@ CORRELAÇÃO DE PEARSON:
 """
 
 
-anos = 'JAN FEV MAR ABR MAI JUN JUL AGO SET OUT NOV DEZ'.split()
-cab = ['POSTO', 'ANOS'] + anos
+meses = 'JAN FEV MAR ABR MAI JUN JUL AGO SET OUT NOV DEZ'.split()
+
 
 
 def leitura_vazao(end) -> pd.DataFrame:
     """Leitura do arquivo vazões.dat."""
     tab = pd.read_csv(end, sep='\s+', header = None )
+    cab = ['POSTO', 'ANOS'] + meses
     tab.columns = cab
     tab.set_index(['POSTO'], drop=True, inplace=True)
     return tab
@@ -39,9 +41,9 @@ def leitura_vazao(end) -> pd.DataFrame:
 end = Path(r'C:\Users\E805511\Downloads\vazoes 2022')
 df_end = leitura_vazao(end)
 
-teste_usinas = df_end.groupby("POSTO").get_group(74)
 
-teste_usinas2 = df_end.groupby("POSTO").indices('POSTO' -> '74', '275')
+
+#teste_usinas2 = df_end.groupby("POSTO").indices('POSTO' -> '74', '275')
 
 
 
@@ -71,10 +73,7 @@ correlacao = df_end.corr(method='pearson')
 
 #%% PLOT
 
-# sns.heatmap(correlacao,
-#             cmap='ocean',
-#             annot=True,
-#             linewidths=0.5)
+
 
 # #Definir x e y
 #sns.scatterplot(data = df_end, x='name1', y='name2')
@@ -105,30 +104,81 @@ correlacao = df_end.corr(method='pearson')
 #------------------------------------------------------------------------------
 
 # %% CONSTRUIR UMA FUNÇÃO
+#BUILDING A FUNCTION 
 
-def 
-selecao1 = ~(df_end.loc[:, 'ANOS'] == 2022).values
-selecao2 = ~(df_end.loc[:, 'ANOS'] == 1931).values
+def organizando_dados():
+    """Digitar depois..."""
+    #--------------------------------------------------------------
+    selecao1 = ~(df_end.loc[:, 'ANOS'] == 2022).values
+    selecao2 = ~(df_end.loc[:, 'ANOS'] == 1931).values
+    #--------------------------------------------------------------
+    df_end_1 = deepcopy(df_end[selecao1])
+    df_end_2 = deepcopy(df_end[selecao2])
+    #--------------------------------------------------------------
+    df_end_1.rename(columns={'ANOS': 'ANO_INI'}, inplace=True)
+    df_end_2.rename(columns={'ANOS': 'ANO_FIM'}, inplace=True)
+    #--------------------------------------------------------------
+    df_end_1.loc[:, 'JAN':'MAR'] = df_end_2.loc[:, 'JAN':'MAR']
+    
+    return df_end_1
 
-df_end_1 = deepcopy(df_end[selecao1])
-df_end_2 = deepcopy(df_end[selecao2])
+def organizando_colunas():
+    """Bla bla."""
+    anos_sel = deque(meses)
+    anos_sel.rotate(-3)
+    print(anos_sel)
+    return anos_sel
 
-df_end_1.rename(columns={'ANOS': 'ANO_INI'}, inplace=True)
-df_end_2.rename(columns={'ANOS': 'ANO_FIM'}, inplace=True)
+anos_sel = organizando_colunas()
+dados = organizando_dados()
 
 # df_end_1.set_index('ANO_INI', append=True, inplace=True)
 # df_end_2.set_index('ANO_FIM', append=True, inplace=True)
 
-df_end_1.loc[:, 'JAN':'MAR'] = df_end_2.loc[:, 'JAN':'MAR']
+
 
 # df_final = pd.concat([df_end_1, df_end_2], axis="columns")
 
-anos_sel = deque(anos)
-anos_sel.rotate(-3)
-print(anos_sel)
 
-df_final = df_end_1.loc[:, ['ANO_INI'] + list(anos_sel)]
+
+df_final = dados.loc[:, ['ANO_INI'] + list(anos_sel)]
 df_final['ANO_INI'] = df_final['ANO_INI'].astype(str) + '-' + (df_final['ANO_INI'] + 1).astype(str)
+#df_final['ANO_INI'].astype(str)
 
 
-#%%
+#%% CORRELAÇÃO
+
+teste_usinas = df_final.groupby("POSTO").get_group(74)
+correlacao = teste_usinas.corr(method='pearson')
+
+sns.heatmap(correlacao,
+            cmap='ocean',
+            annot=True,
+            linewidths=0.5)
+
+#%% SELECIONAR MULTÍPLAS USINAS
+# Código das maiores usinas de cada submercado de energia
+#BUILDING A FUNCTION 
+def selecione_usina(cod:int) -> pd.DataFrame:
+    """Digite o código da usina."""
+    teste_usinas = df_final.groupby("POSTO").get_group(cod)
+    return teste_usinas
+
+def selecionar_multi_usinas(usinas: list):
+    """
+    Digite o código das usinas em uma lista.
+    
+    Exemplo:
+       iusi = selecionar_multi_usinas([6, 74, 169, 275])
+    """
+    lista_usinas = usinas
+    usinas_selec = df_final[df_final.index.isin(lista_usinas)]
+    return usinas_selec
+
+b = selecione_usina(4)
+c = selecionar_multi_usinas([6, 74, 169, 275])
+
+#%% CRIAR NOVA LINHA
+
+# nova linha: 2022-2023 com os dados do comparativo da correlação
+# para todas as usinas
