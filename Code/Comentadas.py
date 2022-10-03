@@ -68,3 +68,15 @@ DESCARTADAS...
 
 # df_final = pd.concat([df_end_1, df_end_2], axis="columns")
 #df_final['ANO_INI'].astype(str)
+
+
+#%% main
+
+# if __name__ == '__main__':
+#     def main():
+#         """Parâmentros por linha de comando.
+#         1 - código da usina
+#         2 - Caminho do arquivo vazoes.dat
+#         3 - Quantos meses a serem preenchidos
+#         """
+#         pass

@@ -109,54 +109,55 @@ df_final['ANO_INI'] = df_final['ANO_INI'].astype(str) + '-' + (df_final['ANO_INI
 
 #%% SELECIONAR UMA OU MúlTIPLAS USINAS
 # Código das maiores usinas de cada submercado de energia
-
+"""Apenas uma usina por enquanto"""
 def selecione_usina(cod:int) -> pd.DataFrame:
     """Digite o código da usina."""
     teste_usinas = df_final.groupby("POSTO").get_group(cod)
     return teste_usinas
 
 #------------------------------------------------------------------------------
-def selecionar_multi_usinas(usinas: list):
-    """
-    Digite o código das usinas em uma lista.
+
+# def selecionar_multi_usinas(usinas: list):
+#     """
+#     Digite o código das usinas em uma lista.
     
-    Exemplo:
-       iusi = selecionar_multi_usinas([6, 74, 169, 275])
-    """
-    lista_usinas = usinas
-    usinas_selec = df_final[df_final.index.isin(lista_usinas)]
-    return usinas_selec
+#     Exemplo:
+#        iusi = selecionar_multi_usinas([6, 74, 169, 275])
+#     """
+#     lista_usinas = usinas
+#     usinas_selec = df_final[df_final.index.isin(lista_usinas)]
+#     return usinas_selec
 
 b = selecione_usina(6)
-c = selecionar_multi_usinas([6, 74, 169, 275])
+# c = selecionar_multi_usinas([6, 74, 169, 275])
 
 
 # =============================================================================
 #%% CORRELAÇÃO DE PEARSON E MANIPULAÇÃO DE DADOS
 # =============================================================================
-pivot2 = df_end.pivot_table(index = ['ANOS', 'POSTO'],
-                            )
-correlacao = df_end.corr(method='pearson')
+# pivot2 = df_end.pivot_table(index = ['ANOS', 'POSTO'],
+#                             )
+# correlacao = df_end.corr(method='pearson')
 
-teste_usinas = df_final.groupby("POSTO").get_group(74)
-correlacao1 = b.corr(method='pearson')
+# teste_usinas = df_final.groupby("POSTO").get_group(74)
+# correlacao1 = b.corr(method='pearson')
 
 
 #===============
 # %% PLOT
 
-sns.heatmap(correlacao,
-            #cmap='ocean',
-            annot=True,
-            linewidths=0.5)
+# sns.heatmap(correlacao,
+#             #cmap='ocean',
+#             annot=True,
+#             linewidths=0.5)
 
-sns.heatmap(correlacao1,
-            cmap='GnBu_r',
-            annot=True,
-            linewidths=0.5)
+# sns.heatmap(correlacao1,
+#             cmap='GnBu_r',
+#             annot=True,
+#             linewidths=0.5)
 
 
-#%% CRIAR NOVA LINHA
+#%% CÁLCULO
 
 # nova linha: 2022-2023 com os dados do comparativo da correlação
 # para todas as usinas
@@ -168,7 +169,7 @@ sns.heatmap(correlacao1,
 #Percorrendo pelas colunas
 #iteritems - key=colunas
 for i, values_geracao in b.iterrows():
-    ultimo_ano = [values_geracao]
+    ultimo_ano = values_geracao
 
 
 # for i in b.itertuples():
@@ -176,11 +177,3 @@ for i, values_geracao in b.iterrows():
     
 
 
-if __name__ == '__main__':
-    def main():
-        """Parâmentros por linha de comando.
-        1 - código da usina
-        2 - Caminho do arquivo vazoes.dat
-        3 - Quantos meses a serem preenchidos
-        """
-        pass
