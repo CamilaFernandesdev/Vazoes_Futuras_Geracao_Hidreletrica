@@ -15,7 +15,7 @@ from collections import deque
 
 #%%
 """
-ESTA´TISTICA DESCRITIVA
+ESTATÍSTICA DESCRITIVA
 
 CORRELAÇÃO DE PEARSON:
     
@@ -23,6 +23,16 @@ CORRELAÇÃO DE PEARSON:
     evolução de outra variável, aplica-se o coeficiente de correlação de Pearson
     com o intervalo de -1 a 1. O valor 0 indica que não há correlação entre as 
     duas variáveis
+    
+    O coeficiente de correlação de Pearson mede o associação linear entre variáveis. Seu valor pode ser interpretado da seguinte forma:
+
+        +1 - Correlação positiva completa
+        +0,8 - Correlação positiva forte
+        +0,6 - Correlação positiva moderada
+        0 - nenhuma correlação
+        -0,6 - Correlação negativa moderada
+        -0,8 - Correlação negativa forte
+        -1 - Correlação negativa completa
 """
 
 
