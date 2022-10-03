@@ -170,6 +170,23 @@ b = selecione_usina(6)
 #iteritems - key=colunas
 for i, values_geracao in b.iterrows():
     ultimo_ano = values_geracao
+    #inserir a correlação
+    
+
+
+r_pearson = []
+#r_pearson.append()
+
+r_series = pd.Series(r_pearson, 
+                     name='Correlação',
+                     index=None)
+
+#Organizando
+r_series.sort_values()
+r_series.
+
+#Pegar o primeiro índice da série e relacionar com índice do DataFrame auxiliar.
+
 
 
 # for i in b.itertuples():
