@@ -16,6 +16,13 @@ o histórico
 Leitura do arquivo com o histórico das vazões das principais usinas hidrelétricas brasileiras,
 por submercado, administradas pela ONS,com o objetivo de realizar dados estatísticos e prevê as vazões futuras.
 
+|CÓD.| POSTO | USINA | SUB|
+|---| --- |---|---|
+|6|6| FURNAS| 1 |
+|74|74| GBM | 2|
+|169|169| SOBRADINHO | 3|
+|275|275 | TUCURUÍ| 4|
+
 ## CORRELAÇÃO DE PEARSON
 
 O Coeficiente de Correlação de Pearson também é chamado de "coeficiente de

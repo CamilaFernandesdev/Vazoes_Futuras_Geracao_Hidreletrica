@@ -121,11 +121,12 @@ def selecione_usina(cod:int) -> pd.DataFrame:
     elif cod == 275:
         print('SOBRADINHO')
     else:
-        print('Escolha entre as usinas [6, 74, 196, 275]')
+        print('Escolha entre as usinas [6, 74, 169, 275]')
+    
     return teste_usinas
 
 
-usina_sel = selecione_usina(6)
+usina_sel = selecione_usina(1)
 
 # =============================================================================
 # %% CÁLCULO FABIANO
@@ -161,7 +162,7 @@ def correlacao():
     # Preenchimento
     ano_preenchimento = (usina_sel.loc[series_anos[correlacao.argmax()+1]])
     
-    print(f'período da correlação {ano_escolhido}')
+    print(f'período da correlação: {ano_escolhido}')
     return correlacao, series_anos, ano_escolhido, ano_preenchimento
 
 
