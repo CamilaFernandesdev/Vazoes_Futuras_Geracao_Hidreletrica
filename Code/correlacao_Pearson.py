@@ -36,8 +36,8 @@ CORRELAÇÃO DE PEARSON:
 """
 
 
-meses = 'JAN FEV MAR ABR MAI JUN JUL AGO SET OUT NOV DEZ'.split()
-
+#meses = 'JAN FEV MAR ABR MAI JUN JUL AGO SET OUT NOV DEZ'.split()
+meses = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 
 def leitura_vazao(end) -> pd.DataFrame:
@@ -70,7 +70,7 @@ def organizando_dados():
     #--------------------------------------------------------------
     #Seleciona em qual mês inicia, realocando os meses anteriores
     #No caso, inicia em Abril
-    df_end_1.loc[:, 'JAN':'MAR'] = df_end_2.loc[:, 'JAN':'MAR']
+    df_end_1.loc[:, 1:3] = df_end_2.loc[:, 1:3]
     
     return df_end_1
 
@@ -83,10 +83,10 @@ def organizando_colunas():
     com o rotate=0
     imprime: deque(['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN',
                     'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'])
-    
     com rotate= -3
-    imprime: deque(['ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET',
-                    'OUT', 'NOV', 'DEZ', 'JAN', 'FEV', 'MAR'])
+    imprime: deque([4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3])
+    equivalente: deque(['ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET',
+                        'OUT', 'NOV', 'DEZ', 'JAN', 'FEV', 'MAR'])
     ------------------
     """
     anos_sel = deque(meses)
@@ -116,13 +116,44 @@ def selecione_usina(cod:int) -> pd.DataFrame:
     return teste_usinas
 
 
-b = selecione_usina(6)
+usina_sel = selecione_usina(1)
 
 # =============================================================================
 # %% CÁLCULO FABIANO
 # =============================================================================
+"""
+
+vazoes = np.random.rand(91, 12) *100
+vazao_ref = np.random.rand(1, 12) * 100
+corre = np.corrcoef(vazao_ref, vazoes)[1:, 0]
+series = [str(ano) + '-' + str(ano+1) for ano in range(1931, 2022)]
+ano_escolhido = series[corre.argmax()]
+
+"""
+#Organizar em uma função
+#pegar a coluna com os anos 
+
+series_anos = usina_sel['ANO_INI']
+series_anos.reset_index(drop=True, inplace=True)
+
+usina_sel.set_index('ANO_INI', inplace=True)
 
 
+#%%
+#função é usada para acessar a última linha do dataframe
+x = np.array(usina_sel.tail(1))
+
+# correlacao = np.corrcoef(x=x,
+#                          rowvar=True) #default)
 
 
+#for i, y in usina_sel.iterrows():
+    # correlacao = np.corrcoef(x=x,y=usina_sel, rowvar=True)
+#    print(y)
 
+correlacao = np.corrcoef(x=x, y=usina_sel)[1: -1, 0]
+
+#Ano escolhido
+ano_escolhido = series_anos[correlacao.argmax()]
+
+#------------------------------------------------------------------------------
