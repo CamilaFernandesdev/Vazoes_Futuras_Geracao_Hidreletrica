@@ -115,82 +115,14 @@ def selecione_usina(cod:int) -> pd.DataFrame:
     teste_usinas = df_final.groupby("POSTO").get_group(cod)
     return teste_usinas
 
-#------------------------------------------------------------------------------
-
-# def selecionar_multi_usinas(usinas: list):
-#     """
-#     Digite o código das usinas em uma lista.
-    
-#     Exemplo:
-#        iusi = selecionar_multi_usinas([6, 74, 169, 275])
-#     """
-#     lista_usinas = usinas
-#     usinas_selec = df_final[df_final.index.isin(lista_usinas)]
-#     return usinas_selec
 
 b = selecione_usina(6)
-# c = selecionar_multi_usinas([6, 74, 169, 275])
-
 
 # =============================================================================
-#%% CORRELAÇÃO DE PEARSON E MANIPULAÇÃO DE DADOS
+# %% CÁLCULO FABIANO
 # =============================================================================
-# pivot2 = df_end.pivot_table(index = ['ANOS', 'POSTO'],
-#                             )
-# correlacao = df_end.corr(method='pearson')
-
-# teste_usinas = df_final.groupby("POSTO").get_group(74)
-# correlacao1 = b.corr(method='pearson')
-
-
-#===============
-# %% PLOT
-
-# sns.heatmap(correlacao,
-#             #cmap='ocean',
-#             annot=True,
-#             linewidths=0.5)
-
-# sns.heatmap(correlacao1,
-#             cmap='GnBu_r',
-#             annot=True,
-#             linewidths=0.5)
-
-
-#%% CÁLCULO
-
-# nova linha: 2022-2023 com os dados do comparativo da correlação
-# para todas as usinas
 
 
 
-#Interando entre linhas
-
-#Percorrendo pelas colunas
-#iteritems - key=colunas
-for i, values_geracao in b.iterrows():
-    ultimo_ano = values_geracao
-    #inserir a correlação
-    
-
-
-r_pearson = []
-#r_pearson.append()
-
-r_series = pd.Series(r_pearson, 
-                     name='Correlação',
-                     index=None)
-
-#Organizando
-r_series.sort_values()
-r_series.
-
-#Pegar o primeiro índice da série e relacionar com índice do DataFrame auxiliar.
-
-
-
-# for i in b.itertuples():
-#     print(i)
-    
 
 
