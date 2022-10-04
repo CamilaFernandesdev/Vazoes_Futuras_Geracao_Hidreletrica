@@ -9,7 +9,6 @@ Created on Thu Sep 29 14:56:21 2022.
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import seaborn as sns
 from copy import deepcopy
 from collections import deque
 
@@ -113,10 +112,20 @@ df_final['ANO_INI'] = df_final['ANO_INI'].astype(str) + '-' + (df_final['ANO_INI
 def selecione_usina(cod:int) -> pd.DataFrame:
     """Digite o código da usina."""
     teste_usinas = df_final.groupby("POSTO").get_group(cod)
+    if cod == 6:
+        print('FURNAS')
+    elif cod == 74:
+        print('GBM')
+    elif cod == 169:
+        print('TUCURUÍ')
+    elif cod == 275:
+        print('SOBRADINHO')
+    else:
+        print('Escolha entre as usinas [6, 74, 196, 275]')
     return teste_usinas
 
 
-usina_sel = selecione_usina(1)
+usina_sel = selecione_usina(6)
 
 # =============================================================================
 # %% CÁLCULO FABIANO
@@ -133,27 +142,32 @@ ano_escolhido = series[corre.argmax()]
 #Organizar em uma função
 #pegar a coluna com os anos 
 
-series_anos = usina_sel['ANO_INI']
-series_anos.reset_index(drop=True, inplace=True)
+def correlacao():
+    """Milhões de coisa em uma função."""
+    series_anos = usina_sel['ANO_INI']
+    series_anos.reset_index(drop=True, inplace=True)
 
-usina_sel.set_index('ANO_INI', inplace=True)
+    usina_sel.set_index('ANO_INI', inplace=True)
+    #--------------------------------------------------------------------------
+    #função é usada para acessar a última linha do dataframe
+    x = np.array(usina_sel.tail(1))
+    #--------------------------------------------------------------------------
+    #Cálculo correlação
+    correlacao = np.corrcoef(x=x, y=usina_sel)[1: -1, 0]
+    
+    #
+    ano_escolhido = series_anos[correlacao.argmax()]
+    #--------------------------------------------------------------------------
+    # Preenchimento
+    ano_preenchimento = (usina_sel.loc[series_anos[correlacao.argmax()+1]])
+    
+    print(f'período da correlação {ano_escolhido}')
+    return correlacao, series_anos, ano_escolhido, ano_preenchimento
 
 
-#%%
-#função é usada para acessar a última linha do dataframe
-x = np.array(usina_sel.tail(1))
 
-# correlacao = np.corrcoef(x=x,
-#                          rowvar=True) #default)
+a = correlacao()
+#%% Escrever no arquivo txt
 
-
-#for i, y in usina_sel.iterrows():
-    # correlacao = np.corrcoef(x=x,y=usina_sel, rowvar=True)
-#    print(y)
-
-correlacao = np.corrcoef(x=x, y=usina_sel)[1: -1, 0]
-
-#Ano escolhido
-ano_escolhido = series_anos[correlacao.argmax()]
-
-#------------------------------------------------------------------------------
+with open(file = end, encoding='utf-8') as arquivo:
+    vazoes_novo = arquivo.readline()
