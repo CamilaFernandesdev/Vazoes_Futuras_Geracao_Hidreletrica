@@ -36,19 +36,19 @@ CORRELAÇÃO DE PEARSON:
 
 
 #meses = 'JAN FEV MAR ABR MAI JUN JUL AGO SET OUT NOV DEZ'.split()
-meses = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+MESES = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 
 def leitura_vazao(end) -> pd.DataFrame:
     """Leitura do arquivo vazões.dat."""
     tab = pd.read_csv(end, sep='\s+', header = None )
-    cab = ['POSTO', 'ANOS'] + meses
+    cab = ['POSTO', 'ANOS'] + MESES
     tab.columns = cab
     tab.set_index(['POSTO'], drop=True, inplace=True)
     return tab
     
-end = Path(r'C:\Users\E805511\Downloads\vazoes 2022')
-df_end = leitura_vazao(end)
+caminho = Path(r'C:\Users\E805511\Downloads\vazoes 2022')
+df_vazao_original = leitura_vazao(caminho)
 
 #------------------------------------------------------------------------------
 
@@ -58,11 +58,11 @@ df_end = leitura_vazao(end)
 def organizando_dados():
     """Digitar depois..."""
     #--------------------------------------------------------------
-    selecao1 = ~(df_end.loc[:, 'ANOS'] == 2022).values
-    selecao2 = ~(df_end.loc[:, 'ANOS'] == 1931).values
+    selecao1 = ~(df_vazao_original.loc[:, 'ANOS'] == 2022).values
+    selecao2 = ~(df_vazao_original.loc[:, 'ANOS'] == 1931).values
     #--------------------------------------------------------------
-    df_end_1 = deepcopy(df_end[selecao1])
-    df_end_2 = deepcopy(df_end[selecao2])
+    df_end_1 = deepcopy(df_vazao_original[selecao1])
+    df_end_2 = deepcopy(df_vazao_original[selecao2])
     #--------------------------------------------------------------
     df_end_1.rename(columns={'ANOS': 'ANO_INI'}, inplace=True)
     df_end_2.rename(columns={'ANOS': 'ANO_FIM'}, inplace=True)
@@ -88,30 +88,33 @@ def organizando_colunas():
                         'OUT', 'NOV', 'DEZ', 'JAN', 'FEV', 'MAR'])
     ------------------
     """
-    anos_sel = deque(meses)
+    anos_sel = deque(MESES)
     anos_sel.rotate(-3)
     print(anos_sel)
     return anos_sel
 
 
 
+def tabela_auxiliar(): 
+    """Digitar depois."""
+    #------------------------------------------------------------------------------
+    #Tabela organizada
+    anos_sel = organizando_colunas()
+    dados = organizando_dados()
+    #------------------------------------------------------------------------------
+    df_final = dados.loc[:, ['ANO_INI'] + list(anos_sel)]
+    df_final['ANO_INI'] = df_final['ANO_INI'].astype(str) + '-' + (df_final['ANO_INI'] + 1).astype(str)
+    #------------------------------------------------------------------------------
+    return df_final
+    
 
-#------------------------------------------------------------------------------
-#Tabela organizada
-anos_sel = organizando_colunas()
-dados = organizando_dados()
-#------------------------------------------------------------------------------
-df_final = dados.loc[:, ['ANO_INI'] + list(anos_sel)]
-df_final['ANO_INI'] = df_final['ANO_INI'].astype(str) + '-' + (df_final['ANO_INI'] + 1).astype(str)
-#------------------------------------------------------------------------------
-
-
+tabela_aux = tabela_auxiliar()
 #%% SELECIONAR UMA OU MúlTIPLAS USINAS
 # Código das maiores usinas de cada submercado de energia
 """Apenas uma usina por enquanto"""
 def selecione_usina(cod:int) -> pd.DataFrame:
     """Digite o código da usina."""
-    teste_usinas = df_final.groupby("POSTO").get_group(cod)
+    teste_usinas = tabela_aux.groupby("POSTO").get_group(cod)
     if cod == 6:
         print('FURNAS')
     elif cod == 74:
@@ -121,54 +124,69 @@ def selecione_usina(cod:int) -> pd.DataFrame:
     elif cod == 275:
         print('SOBRADINHO')
     else:
-        print('Escolha entre as usinas [6, 74, 169, 275]')
+        print('Escolha entre as usinas cod:[6, 74, 169, 275]')
     
     return teste_usinas
 
 
-usina_sel = selecione_usina(1)
+usina_sel = selecione_usina(74)
 
 # =============================================================================
 # %% CÁLCULO FABIANO
 # =============================================================================
-"""
 
-vazoes = np.random.rand(91, 12) *100
-vazao_ref = np.random.rand(1, 12) * 100
-corre = np.corrcoef(vazao_ref, vazoes)[1:, 0]
-series = [str(ano) + '-' + str(ano+1) for ano in range(1931, 2022)]
-ano_escolhido = series[corre.argmax()]
-
-"""
-#Organizar em uma função
-#pegar a coluna com os anos 
-
-def correlacao():
-    """Milhões de coisa em uma função."""
+def periodo_correlacao():
+    """Escrever depois."""
+    #-----------------------------------------------------------
+    #Seleção da coluna com os anos da tabela auxiliar
     series_anos = usina_sel['ANO_INI']
     series_anos.reset_index(drop=True, inplace=True)
-
+    #-----------------------------------------------------------
     usina_sel.set_index('ANO_INI', inplace=True)
+    #-----------------------------------------------------------
+    
+    return series_anos
+
+series_anos = periodo_correlacao()
+
+    
+def calculo_correlacao():
+    """Milhões de coisa em uma função.
+    imprime: período da correlação: 2018-2019
+    """
     #--------------------------------------------------------------------------
     #função é usada para acessar a última linha do dataframe
     x = np.array(usina_sel.tail(1))
     #--------------------------------------------------------------------------
     #Cálculo correlação
     correlacao = np.corrcoef(x=x, y=usina_sel)[1: -1, 0]
-    
-    #
-    ano_escolhido = series_anos[correlacao.argmax()]
     #--------------------------------------------------------------------------
-    # Preenchimento
-    ano_preenchimento = (usina_sel.loc[series_anos[correlacao.argmax()+1]])
+   
     
-    print(f'período da correlação: {ano_escolhido}')
-    return correlacao, series_anos, ano_escolhido, ano_preenchimento
+    return correlacao
+
+
+resultado_correlacao = calculo_correlacao()
+#%% Preenchimento
+
+# Preenchimento
+ano_preenchimento = series_anos[resultado_correlacao.argmax()+1]
+#--------------------------------------------------------------------------
+
+ano_escolhido = series_anos[resultado_correlacao.argmax()]
+#--------------------------------------------------------------------------
+
+print(f'período da correlação: {ano_escolhido}')
+
+
+teste = tabela_aux.groupby("ANO_INI").get_group(ano_preenchimento)
 
 
 
-a = correlacao()
+
 #%% Escrever no arquivo txt
 
-with open(file = end, encoding='utf-8') as arquivo:
-    vazoes_novo = arquivo.readline()
+# with open(file = end, encoding='utf-8') as arquivo:
+#     vazoes_novo = arquivo.readline()
+
+
