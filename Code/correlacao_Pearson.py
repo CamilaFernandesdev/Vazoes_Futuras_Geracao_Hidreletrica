@@ -21,7 +21,7 @@ from collections import deque
 #xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 MESES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-USINAS_PRINCIPAIS = ('FURNAS', 'GBM', 'TUCURUÍ', 'SOBRADINHO')
+USINAS_PRINCIPAIS = ('FURNAS', 'GBM','SOBRADINHO', 'TUCURUÍ' )
 
 #xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         
@@ -160,15 +160,22 @@ def correlacao():
 #%% Preenchimento
 #xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-
 def periodo_da_correlacao():
-    """descrever."""
+    """descrever.
+    
+    imprime: período da correlação: 2001-2002
+    Usando as saídas das funções series_anos e resultado_correlação
+    """
     # Preenchimento
-    ano_preenchimento = series_anos[resultado_correlacao.argmax()+1]
     #--------------------------------------------------------------------------
     #
     ano_escolhido = series_anos[resultado_correlacao.argmax()]
     print(f'período da correlação: {ano_escolhido}')
+    #--------------------------------------------------------------------------
+    #
+    ano_preenchimento = series_anos[resultado_correlacao.argmax()+1]
+    #--------------------------------------------------------------------------
+
     return ano_preenchimento
 
 
@@ -184,14 +191,14 @@ def não_sei():
     return teste
 
 
-def inserindo_resuldado_correlacao():
-    """Cansada, depois escrevo."""
+def inserindo_resuldado_correlacao(mes:int)-> pd.DataFrame:
+    """Retorna um DataFrame preenchido com as previsões."""
     #--------------------------------------------------------------------------
     #
     criterio_selecao = df_vazao_original.loc[:, 'ANOS'] == 2023
     #--------------------------------------------------------------------------
     #
-    df_vazao_original.loc[criterio_selecao, 4:12] = teste
+    df_vazao_original.loc[criterio_selecao, mes+1:12] = teste
     #--------------------------------------------------------------------------
     #
     df_final_previsoes = df_vazao_original
@@ -199,29 +206,58 @@ def inserindo_resuldado_correlacao():
     return df_final_previsoes
 
 #xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-# %%EScrever para texto
+# %%Exportar para texto ou CSV
 #xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 
 def converter_to_txt():
-    """Retorna o arquivo com as alterações e acrescimos dos cenários de previsão."""
-    df_final_previsoes.to_csv(r'C:/Users/E805511/Downloads/vazoes_{USINAS_PRINCIPAIS}.txt',
-                             header= None, 
-                             index=True, 
-                             sep='\t',
-                             mode='a')
+    """Retorna o arquivo no formato original do vazoes.dat.
+    
+    Para as simulações no Rolling Horizon.
+    """
+    lista_linhas = list()
+    for idx, row in df_final_previsoes.iterrows():
+        lista_linhas.append(f"{idx:3} {row['ANOS']:4}"
+                            f"{row[1]:6}{row[2]:6}{row[3]:6}"
+                            f"{row[4]:6}{row[5]:6}{row[6]:6}"
+                            f"{row[7]:6}{row[8]:6}{row[9]:6}"
+                            f"{row[10]:6}{row[11]:6}{row[12]:6}")
+
+    tudo = '\n'.join(lista_linhas)
+    nome_novo_arquivo = 'vazoes_AVG_TUCURUÍ.txt'
+    with open(nome_novo_arquivo, 'w') as file:
+        file.write(tudo)
+
+    return 
+    
+
+# def converter_to_csv():
+#     """Retorna o arquivo em csv com as alterações e acrescimos dos cenários de previsão.
+    
+#     Para aplicação em Excel ou uso em Power BI.
+    
+#     USINAS_PRINCIPAIS = ('FURNAS', 'GBM', 'SOBRADINHO', 'TUCURUÍ', )
+#     """
+#     df_final_previsoes.to_csv(r'C:/Users/E805511/Downloads/vazoes_SOBRADINHO.csv',
+#                              header= None, 
+#                              index=True, 
+#                              sep=';',
+#                              mode='w',
+#                              encoding='utf-8')
 
 
 #xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 def main():
-    """Só sei que tenho que fazer assim."""
+    """Descrever."""
     pass
    
 
-caminho = Path('C:/Users/E805511/Downloads/vazoes.txt')
+#------------------------------------------------------------------------------
+#Parâmetros
+caminho = Path("C:/Users/E805511/Downloads/VAZOES-P75.txt")
 cod = 6
-mes_previsao = 3
-
+mes_previsao = 4
+#------------------------------------------------------------------------------
 
 df_vazao_original = leitura_vazao(caminho)
     
@@ -237,9 +273,15 @@ ano_preenchimento = periodo_da_correlacao()
 
 teste = não_sei()
 
-df_final_previsoes = inserindo_resuldado_correlacao()
-    
-    
+df_final_previsoes = inserindo_resuldado_correlacao(mes_previsao)
+
+#converter_to_txt()
 
 
+#%%
 #mes_previsao = input(f'Digito do mês que termina a previsão da Refinitiv: ')
+# saida_pandas_string = df_final_previsoes.to_string(r'C:/Users/E805511/Downloads/vazoes_teste_sob.csv',
+#                                      index=True,
+#                                      header=None,
+                                     
+#                                      
