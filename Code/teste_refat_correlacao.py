@@ -13,10 +13,10 @@ from collections import deque
 MESES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 USINAS_PRINCIPAIS = ('FURNAS', 'GBM','SOBRADINHO', 'TUCURUÍ' )
 POSTOS_ = {
-    '6': 'FURNAS',
-    '74': 'GBM',
-    '169': 'SOBRADINHO',
-    '275': 'TUCURUÍ'
+    6  : 'FURNAS',
+    74 : 'GBM',
+    169: 'SOBRADINHO',
+    275: 'TUCURUÍ'
 }
 
 #%% classe
@@ -185,7 +185,6 @@ class Vazoes:
         
         Código das maiores usinas de cada submercado de energia.
         """
-        
         tabela_auxiliar = self.tabela_auxiliar()
         dados_usinas_selecionada = tabela_auxiliar.groupby("POSTO").get_group(self.posto)
         
