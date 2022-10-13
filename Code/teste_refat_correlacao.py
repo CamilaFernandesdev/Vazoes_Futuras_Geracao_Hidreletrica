@@ -1,10 +1,10 @@
-
+"""
 # Verificar se o arquivo existe
 # Método Try
+"""
 
 from copy import deepcopy
 from pathlib import Path
-import os.path
 import pandas as pd
 import numpy as np
 from collections import deque
@@ -19,6 +19,7 @@ POSTOS_ = {
     '275': 'TUCURUÍ'
 }
 
+#%% classe
 class Vazoes:
     """
     Parâmetros de entrada:
@@ -29,10 +30,11 @@ class Vazoes:
     ------
     Retorna:    
     """
+    
     def __init__(self,
-                 caminho_arquivo,
-                 mes_referencia,
-                 posto):
+                 caminho_arquivo: str,
+                 mes_referencia: int,
+                 posto: int):
        
         self.path = Path(caminho_arquivo)
         self.mes_referencia = int(mes_referencia)
@@ -41,22 +43,21 @@ class Vazoes:
         self.df_final = None
         
         
+        
     def leitura_vazao(self, arquivo: Path) -> pd.DataFrame:  # type: ignore
         """Leitura do arquivo vazões.dat."""
-        
-        
         df_vazoes = pd.read_csv(arquivo, sep='\s+', header=None )
         cab = ['POSTO', 'ANOS'] + MESES
         df_vazoes.columns = cab
         df_vazoes.set_index(['POSTO'], drop=True, inplace=True)
         self.df_vazoes = df_vazoes
         
-        try:
-            with open('vazoes', 'r') as f:
-                verificar_arquivo(f)  # type: ignore
+        # try:
+        #     with open('vazoes', 'r') as f:
+        #         verificar_arquivo(f)  # type: ignore
         
-        except IOError:
-            print ('Arquivo não encontrado!')  
+        # except IOError:
+        #     print ('Arquivo não encontrado!')  
         
         return df_vazoes
     
@@ -69,7 +70,7 @@ class Vazoes:
         Seleciona em qual mês inicia, realocando os meses anteriores.
         No caso, inicia em Abril...
         """
-        df_vazoes = Vazoes.leitura_vazao(arquivo)  # type: ignore
+        df_vazoes = self.leitura_vazao(arquivo)  # type: ignore
         #--------------------------------------------------------------
         #Seleciona o primeiro e o último ano
         #Retorno em bool. '~ inverte True em False e vice-versa
@@ -89,7 +90,7 @@ class Vazoes:
     
         return df_aux_1
     
-    def reordenando_cabecalho_meses(self, mes: int) -> object:
+    def reordenando_cabecalho_meses(self) -> object:
         """Para modificação do nome das colunas relacionada aos meses.
         
         Seleção da como começam a tabela atráves da biblioteca collections,
@@ -110,26 +111,27 @@ class Vazoes:
         print(meses_reordenandos)
         return meses_reordenandos
 
-    def tabela_auxiliar(self, mes:int) -> pd.DataFrame : 
+    def tabela_auxiliar(self) -> pd.DataFrame: 
         """Digitar depois."""
-        mes = self.mes_referencia
+        #mes = self.mes_referencia
         #--------------------------------------------------------------------------
         #Tabela organizada
-        meses_reordenando = reordenando_cabecalho_meses(mes)
-        dados = reordenando_dados(mes)
+        cabecalho_meses = self.reordenando_cabecalho_meses()
+        dados = self.reordenando_dados()
         #--------------------------------------------------------------------------
-        df_tabela_aux = dados.loc[:, ['ANOS'] + list(meses_reordenando)]
+        df_tabela_aux = dados.loc[:, ['ANOS'] + list(cabecalho_meses)]
         df_tabela_aux['ANOS'] = df_tabela_aux['ANOS'].astype(str) + '-' + (df_tabela_aux['ANOS'] + 1).astype(str)
         #--------------------------------------------------------------------------
         return df_tabela_aux
     
-    def correlacao(self, usina_sel: pd.DataFrame) -> np.Array:
-        """ submiss """
+    def correlacao(self) -> np.array:
+        """submiss."""
         #--------------------------------------------------------------------------
         #função é usada para acessar a última linha do dataframe
         #x = np.array(usina_sel.tail(1))
-        posto = self.posto
-        usina_sel = self.selecione_usina(posto)  
+        
+        usina_sel = self.usina_selecionada()
+        usina_sel.to_numpy(copy=True)
         x1 = np.array(usina_sel.iloc[-2, :])
         #--------------------------------------------------------------------------
         #Cálculo correlação
@@ -146,12 +148,13 @@ class Vazoes:
         """
         # Preenchimento
         #--------------------------------------------------------------------------
-        #
-        ano_escolhido = series_anos[resultado_correlacao.argmax()]
+        series_anos = self.series_anos()
+        correlacao = self.correlacao()
+        ano_escolhido = series_anos[correlacao.argmax()]
         print(f'período da correlação: {ano_escolhido}')
         #--------------------------------------------------------------------------
         #
-        ano_preenchimento = series_anos[resultado_correlacao.argmax()+1]
+        ano_preenchimento = self.series_anos[self.correlacao.argmax()+1]
         #--------------------------------------------------------------------------
 
         return ano_preenchimento
@@ -160,7 +163,8 @@ class Vazoes:
     def não_sei(self):
         """Imagine descrever o que eu não sei."""    
         #--------------------------------------------------------------------------
-        teste = tabela_aux.groupby("ANOS").get_group(ano_preenchimento)
+        tabela_aux = self.tabela_auxiliar()
+        teste = tabela_aux.groupby("ANOS").get_group(self.periodo_da_correlacao())
         #--------------------------------------------------------------------------
         # #Selecionando até Dezembro
         # Até o memento as previsões 
@@ -168,28 +172,30 @@ class Vazoes:
     
     def inserindo_resuldado_correlacao(self)-> pd.DataFrame:
         """Retorna um DataFrame preenchido com as previsões."""
+        criterio_selecao = self.df_vazoes.loc[:, 'ANOS'] == 2023
      
-        criterio_selecao = self.df_vazao.loc[:, 'ANOS'] == 2023
-     
-        df_vazao_original.loc[criterio_selecao, self.mes_referencia+1: 12] = teste
+        self.df_vazoes.loc[criterio_selecao, self.mes_referencia+1: 12] = self.não_sei()
       
-        df_final_previsoes = df_vazao_original
+        df_final_previsoes = self.df_vazoes
         #--------------------------------------------------------------------------
         return df_final_previsoes
 
-    def selecione_usina(self, cod:int) -> pd.DataFrame:
+    def usina_selecionada(self) -> pd.DataFrame:
         """Digite o código da usina.
         
         Código das maiores usinas de cada submercado de energia.
         """
-        dados_usinas_selecionada = tabela_aux.groupby("POSTO").get_group(cod)
-        if cod == 6:
+        
+        tabela_auxiliar = self.tabela_auxiliar()
+        dados_usinas_selecionada = tabela_auxiliar.groupby("POSTO").get_group(self.posto)
+        
+        if self.posto == 6:
             print(USINAS_PRINCIPAIS[0])
-        elif cod == 74:
+        elif self.posto == 74:
             print(USINAS_PRINCIPAIS[1])
-        elif cod == 169:
+        elif self.posto == 169:
             print(USINAS_PRINCIPAIS[2])
-        elif cod == 275:
+        elif self.posto == 275:
             print(USINAS_PRINCIPAIS[3])
         else:
             print('Escolha entre as usinas cod:[6, 74, 169, 275]')
@@ -197,17 +203,18 @@ class Vazoes:
         return dados_usinas_selecionada
 
 
-    def series_anos():
+    def series_anos(self):
         """Escrever depois."""
         #-----------------------------------------------------------
         #Seleção da coluna com os anos da tabela auxiliar
+        usina_sel = self.usina_selecionada()
         series_anos = usina_sel['ANOS']
         series_anos.reset_index(drop=True, inplace=True)
         #-----------------------------------------------------------
         usina_sel.set_index('ANOS', inplace=True)
         #-----------------------------------------------------------
         return series_anos
-# %%
+
 #xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 
@@ -250,7 +257,16 @@ class Vazoes:
 
 
 
-class Correlacao(Vazoes):
-       pass
-
-
+# class Correlacao(Vazoes):
+#        pass
+#%% if name
+if __name__ == '__main__':
+    
+    arquivo = Path("C:/Users/E805511/Downloads/VAZOES-P75.txt")
+    posto = 6
+    mes = 4
+    
+    vazoes = Vazoes(arquivo, mes, posto)
+    za = vazoes.tabela_auxiliar()
+    zb = vazoes.reordenando_dados()
+    zc = vazoes.inserindo_resuldado_correlacao()
