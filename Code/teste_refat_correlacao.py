@@ -61,55 +61,7 @@ class Vazoes:
         
         return df_vazoes
     
-    def reordenando_dados(self) -> pd.DataFrame :
-        """
-        Versionamento dos dados.
-        
-        mes = mês que finaliza a previsão da Refinitiv
-        
-        Seleciona em qual mês inicia, realocando os meses anteriores.
-        No caso, inicia em Abril...
-        """
-        df_vazoes = self.leitura_vazao(arquivo)  # type: ignore
-        #--------------------------------------------------------------
-        #Seleciona o primeiro e o último ano
-        #Retorno em bool. '~ inverte True em False e vice-versa
-        selecao1 = ~(df_vazoes.loc[:, 'ANOS'] == 2023).values
-        selecao2 = ~(df_vazoes.loc[:, 'ANOS'] == 1931).values
-        #--------------------------------------------------------------
-        #Separando o arquivo em dois
-        df_aux_1 = deepcopy(df_vazoes[selecao1])
-        df_aux_2 = deepcopy(df_vazoes[selecao2])
-        #--------------------------------------------------------------
-        #Renomeação da coluna
-        df_aux_2.rename(columns={'ANOS': 'ANO_FIM'}, inplace=True)
-        #--------------------------------------------------------------
-        #Seleciona em qual mês inicia, realocando os meses
-        #Une os DataFrames
-        df_aux_1.loc[:, 1:self.mes_referencia] = df_aux_2.loc[:, 1:self.mes_referencia]
     
-        return df_aux_1
-    
-    def reordenando_cabecalho_meses(self) -> object:
-        """Para modificação do nome das colunas relacionada aos meses.
-        
-        Seleção da como começam a tabela atráves da biblioteca collections,
-        classe deque.
-        -------------------
-        Exemplo:
-        com o rotate=0
-        imprime: deque([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
-        
-        Com rotate = -3
-        imprime: deque([4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3])
-        equivalente: deque(['ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET',
-                            'OUT', 'NOV', 'DEZ', 'JAN', 'FEV', 'MAR'])
-        ------------------
-        """
-        meses_reordenandos = deque(MESES)
-        meses_reordenandos.rotate(- self.mes_referencia)
-        print(meses_reordenandos)
-        return meses_reordenandos
 
     def tabela_auxiliar(self) -> pd.DataFrame: 
         """Digitar depois."""
@@ -122,6 +74,58 @@ class Vazoes:
         df_tabela_aux = dados.loc[:, ['ANOS'] + list(cabecalho_meses)]
         df_tabela_aux['ANOS'] = df_tabela_aux['ANOS'].astype(str) + '-' + (df_tabela_aux['ANOS'] + 1).astype(str)
         #--------------------------------------------------------------------------
+        
+        def reordenando_dados(self) -> pd.DataFrame :
+            """
+            Versionamento dos dados.
+            
+            mes = mês que finaliza a previsão da Refinitiv
+            
+            Seleciona em qual mês inicia, realocando os meses anteriores.
+            No caso, inicia em Abril...
+            """
+            df_vazoes = self.leitura_vazao(arquivo)  # type: ignore
+            #--------------------------------------------------------------
+            #Seleciona o primeiro e o último ano
+            #Retorno em bool. '~ inverte True em False e vice-versa
+            selecao1 = ~(df_vazoes.loc[:, 'ANOS'] == 2023).values
+            selecao2 = ~(df_vazoes.loc[:, 'ANOS'] == 1931).values
+            #--------------------------------------------------------------
+            #Separando o arquivo em dois
+            df_aux_1 = deepcopy(df_vazoes[selecao1])
+            df_aux_2 = deepcopy(df_vazoes[selecao2])
+            #--------------------------------------------------------------
+            #Renomeação da coluna
+            df_aux_2.rename(columns={'ANOS': 'ANO_FIM'}, inplace=True)
+            #--------------------------------------------------------------
+            #Seleciona em qual mês inicia, realocando os meses
+            #Une os DataFrames
+            df_aux_1.loc[:, 1:self.mes_referencia] = df_aux_2.loc[:, 1:self.mes_referencia]
+        
+            return df_aux_1
+        
+        def reordenando_cabecalho_meses(self) -> object:
+            """Para modificação do nome das colunas relacionada aos meses.
+            
+            Seleção da como começam a tabela atráves da biblioteca collections,
+            classe deque.
+            -------------------
+            Exemplo:
+            com o rotate=0
+            imprime: deque([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            
+            Com rotate = -3
+            imprime: deque([4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3])
+            equivalente: deque(['ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET',
+                                'OUT', 'NOV', 'DEZ', 'JAN', 'FEV', 'MAR'])
+            ------------------
+            """
+            meses_reordenandos = deque(MESES)
+            meses_reordenandos.rotate(- self.mes_referencia)
+            print(meses_reordenandos)
+            return meses_reordenandos
+        
+        
         return df_tabela_aux
     
     def correlacao(self) -> np.array:
@@ -222,6 +226,8 @@ class Vazoes:
         
         Para as simulações no Rolling Horizon.
         """
+        
+        df_final = self.inserindo_resuldado_correlacao()
         lista_linhas = list()
         
         for idx, row in self.df_final.iterrows():
@@ -247,7 +253,9 @@ class Vazoes:
         
         USINAS_PRINCIPAIS = ('FURNAS', 'GBM', 'SOBRADINHO', 'TUCURUÍ', )
         """
-        self.df_final.to_csv(r'C:/Users/E805511/Downloads/vazoes_SOBRADINHO.csv',
+        df_final = self.inserindo_resuldado_correlacao()
+        
+        df_final.to_csv(r'C:/Users/E805511/Downloads/vazoes_SOBRADINHO.csv',
                                 header= None, 
                                 index=True, 
                                 sep=';',
@@ -268,4 +276,6 @@ if __name__ == '__main__':
     vazoes = Vazoes(arquivo, mes, posto)
     za = vazoes.tabela_auxiliar()
     zb = vazoes.reordenando_dados()
-    zc = vazoes.inserindo_resuldado_correlacao()
+    zc = vazoes.series_anos()
+    zd = vazoes.usina_selecionada()
+    ze = 
