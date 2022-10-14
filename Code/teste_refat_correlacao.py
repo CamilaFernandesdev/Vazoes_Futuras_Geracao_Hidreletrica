@@ -1,8 +1,8 @@
 """
-# Verificar se o arquivo existe
+# Verificar se o arquivo existe.
+
 # Método Try
 """
-
 from copy import deepcopy
 from pathlib import Path
 import pandas as pd
@@ -282,13 +282,13 @@ class Vazoes:
 #%% if name
 if __name__ == '__main__':
     
-    # arq = Path("C:/Users/E805511/Downloads/VAZOES-P75.txt")
-    # mes = 4
-    # posto = 6
+    arq = Path("C:/Users/E805511/Downloads/VAZOES-P75.txt")
+    mes = 4
+    posto = 6
     
-    arq = str(input('Caminho do arquivo: '))
-    posto = int(input('Posto da usina: '))
-    mes = int(input('Més final da previsão: '))
+    # arq = str(input('Caminho do arquivo: '))
+    # posto = int(input('Posto da usina: '))
+    # mes = int(input('Més final da previsão: '))
     
     vazoes = Vazoes(caminho_arquivo=arq, mes_referencia=mes, posto=posto)
     resultado = vazoes.resuldado_correlacao()
