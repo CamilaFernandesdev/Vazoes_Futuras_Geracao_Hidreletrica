@@ -261,9 +261,9 @@ cod = 6
 mes_previsao = 4
 #------------------------------------------------------------------------------
 
-df_vazao_original = leitura_vazao(caminho)
+#df_vazao_original = leitura_vazao(caminho)
     
-tabela_aux = tabela_auxiliar(mes=mes_previsao)
+#tabela_aux = tabela_auxiliar(mes=mes_previsao)
 
 usina_sel = selecione_usina(cod=cod)
 
