@@ -4,7 +4,6 @@
 """
 
 from copy import deepcopy
-from copyreg import constructor
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -45,6 +44,11 @@ class Vazoes:
                  mes_referencia: int,
                  posto: int):
         
+        
+        self.path = Path(caminho_arquivo)
+        self.mes_referencia = int(mes_referencia)
+        self.posto = int(posto)
+        
         #-------------------------------------------------------------------------
         if mes_referencia > 12:
             raise Exception
@@ -56,11 +60,8 @@ class Vazoes:
         df_vazoes.set_index(['POSTO'], drop=True, inplace=True)
         #-------------------------------------------------------------------------
         
-        self.path = Path(caminho_arquivo)
-        self.mes_referencia = int(mes_referencia)
-        self.posto = int(posto)
         self.df_vazoes = df_vazoes
-        
+
 
     #Construindo a tabela auxiliar para fazer a correlação
     def _reordenando_dados(self) -> pd.DataFrame :
@@ -70,8 +71,6 @@ class Vazoes:
         
         Seleciona em qual mês inicia, realocando os meses anteriores.
         No caso, inicia em Abril...
-        
-        
         """
         #--------------------------------------------------------------
         #Seleciona o primeiro e o último ano
@@ -89,7 +88,7 @@ class Vazoes:
         #Seleciona em qual mês inicia, realocando os meses
         #Une os DataFrames
         df_aux_1.loc[:, 1:self.mes_referencia] = df_aux_2.loc[:, 1:self.mes_referencia]
-    
+        
         return df_aux_1
 
     def _reordenando_cabecalho_meses(self) -> object:
@@ -116,7 +115,6 @@ class Vazoes:
     
     def tabela_auxiliar(self) -> pd.DataFrame: 
         """Digitar depois."""
-        
         #--------------------------------------------------------------------------
         #Tabela organizada
         cabecalho_meses = self._reordenando_cabecalho_meses()
@@ -133,11 +131,10 @@ class Vazoes:
     #Cálcular a correlação de devolver o ano selecionado
     
     def usina_selecionada(self) -> pd.DataFrame:
-        """A correlação é refente a uma usina.
+        """correlação é refente a uma usina.
         
         Código das maiores usinas de cada submercado de energia.
         """
-        
         tabela_auxiliar = self.tabela_auxiliar()
         dados_usinas_selecionada = tabela_auxiliar.groupby("POSTO").get_group(self.posto)
         
@@ -160,11 +157,11 @@ class Vazoes:
         """Escrever depois."""
         #-----------------------------------------------------------
         #Seleção da coluna com os anos da tabela auxiliar
-        
-        series_anos = self.usina_selecionada['ANOS']
+        usina_sel = self.usina_selecionada()
+        series_anos = usina_sel['ANOS']
         series_anos.reset_index(drop=True, inplace=True)
         #-----------------------------------------------------------
-        self.usina_selecionada.set_index('ANOS', inplace=True)
+        # self.usina_selecionada.set_index('ANOS', inplace=True)
         #-----------------------------------------------------------
         return series_anos
     
@@ -175,9 +172,9 @@ class Vazoes:
         #--------------------------------------------------------------------------
         #função é usada para acessar a última linha do dataframe
         #x = np.array(usina_sel.tail(1))
-        
+       
         usina_sel = self.usina_selecionada()
-        usina_sel.to_numpy(copy=True)
+        usina_sel.set_index('ANOS', inplace=True)
         x1 = np.array(usina_sel.iloc[-2, :])
         #--------------------------------------------------------------------------
         #Cálculo correlação
@@ -199,8 +196,7 @@ class Vazoes:
         ano_escolhido = series_anos[correlacao.argmax()]
         print(f'período da correlação: {ano_escolhido}')
         #--------------------------------------------------------------------------
-        #
-        ano_preenchimento = self.series_anos[self.correlacao.argmax()+1]
+        ano_preenchimento = series_anos[correlacao.argmax()+1]
         #--------------------------------------------------------------------------
 
         return ano_preenchimento
@@ -222,13 +218,18 @@ class Vazoes:
 
 
 
-    # Preenchimento dos valores NaN com o resultado da correlação
+# Preenchimento dos valores NaN com o resultado da correlação
     def resuldado_correlacao(self)-> pd.DataFrame:
         """Retorna um DataFrame preenchido com as previsões."""
+        #Realizar um maneira de identificar o último ano
         criterio_selecao = self.df_vazoes.loc[:, 'ANOS'] == 2023
-     
-        self.df_vazoes.loc[criterio_selecao, self.mes_referencia+1: 12] = self.dados_para_preencher()
-      
+        
+        if self.mes_referencia < 12:
+            self.df_vazoes.loc[criterio_selecao, self.mes_referencia+1: 12] = self.dados_para_preencher()
+        else:
+            print('Tenho que resolver! Quando o mês é 12')
+        
+        
         df_final = self.df_vazoes
         #--------------------------------------------------------------------------
         return df_final
@@ -240,9 +241,10 @@ class Vazoes:
         
         Para as simulações no Rolling Horizon.
         """
+        df_final = self.resuldado_correlacao()
         lista_linhas = list()
         
-        for idx, row in self.df_final.iterrows():
+        for idx, row in df_final.iterrows():
             lista_linhas.append(f"{idx:3} {row['ANOS']:4}"
                                 f"{row[1]:6}{row[2]:6}{row[3]:6}"
                                 f"{row[4]:6}{row[5]:6}{row[6]:6}"
@@ -265,12 +267,13 @@ class Vazoes:
         
         USINAS_PRINCIPAIS = ('FURNAS', 'GBM', 'SOBRADINHO', 'TUCURUÍ', )
         """
-        self.df_final.to_csv(r'C:/Users/E805511/Downloads/vazoes_SOBRADINHO.csv',
-                                header= None, 
-                                index=True, 
-                                sep=';',
-                                mode='w',
-                                encoding='utf-8')
+        df_final = self.resuldado_correlacao()
+        df_final.to_csv(r'C:/Users/E805511/Downloads/vazoes_SOBRADINHO.csv',
+                        header= None, 
+                        index=True, 
+                        sep=';',
+                        mode='w',
+                        encoding='utf-8')
 
 
 
@@ -279,11 +282,13 @@ class Vazoes:
 #%% if name
 if __name__ == '__main__':
     
-    arquivo = Path("C:/Users/E805511/Downloads/VAZOES-P75.txt")
-    posto = 6
-    mes = 4
+    # arq = Path("C:/Users/E805511/Downloads/VAZOES-P75.txt")
+    # mes = 4
+    # posto = 6
     
-    vazoes = Vazoes(arquivo, mes, posto)
-    za = vazoes.tabela_auxiliar()
-    zb = vazoes.reordenando_dados()
-    zc = vazoes.inserindo_resuldado_correlacao()
+    arq = str(input('Caminho do arquivo: '))
+    posto = int(input('Posto da usina: '))
+    mes = int(input('Més final da previsão: '))
+    
+    vazoes = Vazoes(caminho_arquivo=arq, mes_referencia=mes, posto=posto)
+    resultado = vazoes.resuldado_correlacao()
