@@ -1,15 +1,18 @@
 # Simulações NEWAVE-DECOMP ENCADEADO
 
 **Período de Comercialização:**
- -  A Copel GeT possuí um período de comercialização que vai até 18 anos a 
+A Copel GeT possuí um período de comercialização que vai até 18 anos a 
 frente, com foco nos primeiros 2 anos. O princípio é investigar melhor estes 
 primeiros 2 anos através de simulações NEWAVE-DECOMP encadeados.
- -  Inicialmente será feita simulação iniciando neste final de 2022 e 
+
+ Inicialmente será feita simulação iniciando neste final de 2022 e 
 terminando em dezembro de 2023.
- -  Por exemplo se iniciado em Setembro/2022, a previsão da Refinitiv vai até 
+
+Por exemplo se iniciado em Setembro/2022, a previsão da Refinitiv vai até 
 março de 2023. Para que a simulação encadeada alcance dezembro de 
 2023, faz-se necessário estender, de alguma forma, projeção de afluência.
- -  Uma forma simples de fazer essa extensão seria através de Correlação com 
+
+Uma forma simples de fazer essa extensão seria através de Correlação com 
 o histórico
 
 ## PREVISÕES DAS VAZÕES FUTURAS

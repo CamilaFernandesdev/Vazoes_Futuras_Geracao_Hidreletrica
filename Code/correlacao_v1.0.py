@@ -142,7 +142,7 @@ def series_anos():
 def correlacao():
     r"""Milhões de coisa em uma função.
     
-    .. math:: R_{ij}=\\frac{ C_{ij} }{ \\sqrt{ C_{ii} * C_{jj}}}
+    .. math:: R_{ij}=\frac{ C_{ij} }{ \\sqrt{ C_{ii} * C_{jj}}}
     
     The values of `R` are between -1 and 1, inclusive.
     """
@@ -216,6 +216,7 @@ def converter_to_txt():
     Para as simulações no Rolling Horizon.
     """
     lista_linhas = list()
+    
     for idx, row in df_final_previsoes.iterrows():
         lista_linhas.append(f"{idx:3} {row['ANOS']:4}"
                             f"{row[1]:6}{row[2]:6}{row[3]:6}"
@@ -225,25 +226,26 @@ def converter_to_txt():
 
     tudo = '\n'.join(lista_linhas)
     nome_novo_arquivo = 'vazoes_AVG_TUCURUÍ.txt'
+    
     with open(nome_novo_arquivo, 'w') as file:
         file.write(tudo)
 
-    return 
+     
     
 
-# def converter_to_csv():
-#     """Retorna o arquivo em csv com as alterações e acrescimos dos cenários de previsão.
+def converter_to_csv():
+    """Retorna o arquivo em csv com as alterações e acrescimos dos cenários de previsão.
     
-#     Para aplicação em Excel ou uso em Power BI.
+    Para aplicação em Excel ou uso em Power BI.
     
-#     USINAS_PRINCIPAIS = ('FURNAS', 'GBM', 'SOBRADINHO', 'TUCURUÍ', )
-#     """
-#     df_final_previsoes.to_csv(r'C:/Users/E805511/Downloads/vazoes_SOBRADINHO.csv',
-#                              header= None, 
-#                              index=True, 
-#                              sep=';',
-#                              mode='w',
-#                              encoding='utf-8')
+    USINAS_PRINCIPAIS = ('FURNAS', 'GBM', 'SOBRADINHO', 'TUCURUÍ', )
+    """
+    df_final_previsoes.to_csv(r'C:/Users/E805511/Downloads/vazoes_SOBRADINHO.csv',
+                              header= None, 
+                              index=True, 
+                              sep=';',
+                              mode='w',
+                              encoding='utf-8')
 
 
 #xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -259,9 +261,9 @@ cod = 6
 mes_previsao = 4
 #------------------------------------------------------------------------------
 
-df_vazao_original = leitura_vazao(caminho)
+#df_vazao_original = leitura_vazao(caminho)
     
-tabela_aux = tabela_auxiliar(mes=mes_previsao)
+#tabela_aux = tabela_auxiliar(mes=mes_previsao)
 
 usina_sel = selecione_usina(cod=cod)
 
